@@ -44,6 +44,14 @@ namespace ByteBank.Forum.Controllers
                 novoUsuario.UserName = modelo.UserName;
                 novoUsuario.NomeCompleto = modelo.NomeCompleto;
 
+                var user = await UserManager.FindByEmailAsync(modelo.Email);
+
+                if(user != null)
+                {
+                    Console.WriteLine($"E-mail {modelo.Email} já cadastrado. Enviando usuário para tela inicial.");
+                    return RedirectToAction("Index", "Home");
+                }
+
                 var result = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
                 if (result.Succeeded)
                 {
