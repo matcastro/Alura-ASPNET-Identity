@@ -2,6 +2,8 @@
 using ByteBank.Forum.ViewModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -43,14 +45,26 @@ namespace ByteBank.Forum.Controllers
                 novoUsuario.NomeCompleto = modelo.NomeCompleto;
 
                 var result = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
-                if (!result.Succeeded)
+                if (result.Succeeded)
                 {
-                    return View(result.Errors);
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    AdicionaErros(result.Errors);
                 }
 
-                return RedirectToAction("Index", "Home");
+                
             }
             return View(modelo);
+        }
+
+        private void AdicionaErros(IEnumerable<string> errors)
+        {
+            foreach (var erro in errors)
+            {
+                ModelState.AddModelError("", erro);
+            }
         }
     }
 }
