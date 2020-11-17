@@ -5,6 +5,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -18,7 +19,7 @@ namespace ByteBank.Forum.Controllers
         }
 
         [HttpPost]
-        public ActionResult Registrar(ContaRegistrarViewModel modelo)
+        public async Task<ActionResult> Registrar(ContaRegistrarViewModel modelo)
         {
             if (ModelState.IsValid)
             {
@@ -31,7 +32,7 @@ namespace ByteBank.Forum.Controllers
                 novoUsuario.UserName = modelo.UserName;
                 novoUsuario.NomeCompleto = modelo.NomeCompleto;
 
-                var result = userManager.Create(novoUsuario, modelo.Senha);
+                var result = await userManager.CreateAsync(novoUsuario, modelo.Senha);
                 if (!result.Succeeded)
                 {
                     return View(result.Errors);
