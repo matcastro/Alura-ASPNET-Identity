@@ -5,6 +5,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin;
 using Owin;
 using System.Data.Entity;
+using ByteBank.Forum.App_Start.Identity;
 
 [assembly: OwinStartup(typeof(ByteBank.Forum.Startup))]
 
@@ -30,6 +31,16 @@ namespace ByteBank.Forum
                 var userValidator = new UserValidator<UsuarioAplicacao>(userManager)
                 {
                     RequireUniqueEmail = true
+                };
+
+                userManager.UserValidator = userValidator;
+                userManager.PasswordValidator = new SenhaValidador
+                {
+                    TamanhoRequerido = 6,
+                    ObrigatorioCaracteresEspeciais = true,
+                    ObrigatorioDigitos = true,
+                    ObrigatorioLowerCase = true,
+                    ObrigatorioUpperCase = true
                 };
 
                 return userManager;
