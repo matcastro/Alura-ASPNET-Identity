@@ -45,6 +45,8 @@ namespace ByteBank.Forum
 
                 userManager.EmailService = new EmailServico();
 
+                userManager.UserTokenProvider = new DataProtectorTokenProvider<UsuarioAplicacao>(options.DataProtectionProvider.Create("ByteBank.Forum"));
+
                 return userManager;
             });
         }
