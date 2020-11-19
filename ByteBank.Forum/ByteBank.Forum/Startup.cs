@@ -6,6 +6,7 @@ using Microsoft.Owin;
 using Owin;
 using System.Data.Entity;
 using ByteBank.Forum.App_Start.Identity;
+using Microsoft.Owin.Security.Cookies;
 
 [assembly: OwinStartup(typeof(ByteBank.Forum.Startup))]
 
@@ -56,6 +57,11 @@ namespace ByteBank.Forum
                 var signInManager = new SignInManager<UsuarioAplicacao, string>(userManager, contextoOwin.Authentication);
 
                 return signInManager;
+            });
+
+            builder.UseCookieAuthentication(new CookieAuthenticationOptions
+            {
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie
             });
         }
     }
