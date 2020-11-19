@@ -100,6 +100,21 @@ namespace ByteBank.Forum.Controllers
                 $"Bem vindo ao fórum ByteBank, clique aqui {linkDeCallback} para confirmar seu e-mail");
         }
 
+        public async Task<ActionResult> Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Login(ContaLoginViewModel modelo)
+        {
+            if (ModelState.IsValid)
+            {
+
+            }
+            return View(modelo);
+        }
+
         private void AdicionaErros(IEnumerable<string> errors)
         {
             foreach (var erro in errors)
