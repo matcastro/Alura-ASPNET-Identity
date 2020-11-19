@@ -2,8 +2,10 @@
 using ByteBank.Forum.ViewModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -47,6 +49,15 @@ namespace ByteBank.Forum.Controllers
                 _signInManager = value;
             }
         }
+
+        public IAuthenticationManager AuthenticationManager
+        {
+            get
+            {
+                return Request.GetOwinContext().Authentication;
+            }
+        }
+
         public ActionResult Registrar()
         {
             return View();
@@ -118,7 +129,7 @@ namespace ByteBank.Forum.Controllers
                 $"Bem vindo ao fórum ByteBank, clique aqui {linkDeCallback} para confirmar seu e-mail");
         }
 
-        public async Task<ActionResult> Login()
+        public ActionResult Login()
         {
             return View();
         }
@@ -146,6 +157,13 @@ namespace ByteBank.Forum.Controllers
 
             }
             return View(modelo);
+        }
+
+        [HttpPost]
+        public ActionResult Logoff()
+        {
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            return RedirectToAction("Index", "Home");
         }
 
         private ActionResult SenhaOuUsuarioInvalidos()
