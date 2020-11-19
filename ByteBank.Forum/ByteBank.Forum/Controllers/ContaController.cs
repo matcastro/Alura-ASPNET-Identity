@@ -49,13 +49,14 @@ namespace ByteBank.Forum.Controllers
                 if(user != null)
                 {
                     Console.WriteLine($"E-mail {modelo.Email} já cadastrado. Enviando usuário para tela inicial.");
-                    return RedirectToAction("Index", "Home");
+                    return View("AguardandoConfirmacao");
                 }
 
                 var result = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    await EnviarEmailDeConfirmacao(novoUsuario);
+                    return View("AguardandoConfirmacao");
                 }
                 else
                 {
@@ -65,6 +66,27 @@ namespace ByteBank.Forum.Controllers
                 
             }
             return View(modelo);
+        }
+
+        public ActionResult ConfirmacaoEmail (string usuarioId, string token)
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task EnviarEmailDeConfirmacao(UsuarioAplicacao usuario)
+        {
+            var token = await UserManager.GenerateEmailConfirmationTokenAsync(usuario.Id);
+
+            var linkDeCallback = Url.Action(
+                "ConfirmacaoEmail",
+                "Conta",
+                new { usuarioId = usuario.Id, token = token},
+                Request.Url.Scheme
+                );
+
+            await UserManager.SendEmailAsync(usuario.Id,
+                "Fórum ByteBank - Confirmação de Email",
+                $"Bem vindo ao fórum ByteBank, clique aqui {linkDeCallback} para confirmar seu e-mail");
         }
 
         private void AdicionaErros(IEnumerable<string> errors)
