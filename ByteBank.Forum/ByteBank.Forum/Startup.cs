@@ -15,7 +15,7 @@ namespace ByteBank.Forum
     {
         public void Configuration(IAppBuilder builder)
         {
-            builder.CreatePerOwinContext<DbContext>(() => 
+            builder.CreatePerOwinContext<DbContext>(() =>
                 new IdentityDbContext<UsuarioAplicacao>("DefaultConnection"));
 
             builder.CreatePerOwinContext<IUserStore<UsuarioAplicacao>>((options, contextoOwin) =>
@@ -48,6 +48,14 @@ namespace ByteBank.Forum
                 userManager.UserTokenProvider = new DataProtectorTokenProvider<UsuarioAplicacao>(options.DataProtectionProvider.Create("ByteBank.Forum"));
 
                 return userManager;
+            });
+
+            builder.CreatePerOwinContext<SignInManager<UsuarioAplicacao, string>>((options, contextoOwin) =>
+            {
+                var userManager = contextoOwin.Get<UserManager<UsuarioAplicacao>>();
+                var signInManager = new SignInManager<UsuarioAplicacao, string>(userManager, contextoOwin.Authentication);
+
+                return signInManager;
             });
         }
     }

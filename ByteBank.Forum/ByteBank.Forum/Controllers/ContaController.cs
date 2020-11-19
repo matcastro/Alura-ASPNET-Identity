@@ -17,7 +17,7 @@ namespace ByteBank.Forum.Controllers
         {
             get
             {
-                if(_userManager == null)
+                if (_userManager == null)
                 {
                     var contextOwin = HttpContext.GetOwinContext();
                     return contextOwin.GetUserManager<UserManager<UsuarioAplicacao>>();
@@ -27,6 +27,24 @@ namespace ByteBank.Forum.Controllers
             set
             {
                 _userManager = value;
+            }
+        }
+
+        private SignInManager<UsuarioAplicacao, string> _signInManager;
+        public SignInManager<UsuarioAplicacao, string> SignInManager
+        {
+            get
+            {
+                if (_signInManager == null)
+                {
+                    var contextOwin = HttpContext.GetOwinContext();
+                    return contextOwin.GetUserManager<SignInManager<UsuarioAplicacao, string>>();
+                }
+                return _signInManager;
+            }
+            set
+            {
+                _signInManager = value;
             }
         }
         public ActionResult Registrar()
@@ -46,7 +64,7 @@ namespace ByteBank.Forum.Controllers
 
                 var user = await UserManager.FindByEmailAsync(modelo.Email);
 
-                if(user != null)
+                if (user != null)
                 {
                     Console.WriteLine($"E-mail {modelo.Email} já cadastrado. Enviando usuário para tela inicial.");
                     return View("AguardandoConfirmacao");
@@ -63,14 +81,14 @@ namespace ByteBank.Forum.Controllers
                     AdicionaErros(result.Errors);
                 }
 
-                
+
             }
             return View(modelo);
         }
 
-        public async Task<ActionResult> ConfirmacaoEmail (string usuarioId, string token)
+        public async Task<ActionResult> ConfirmacaoEmail(string usuarioId, string token)
         {
-            if(usuarioId == null || token == null)
+            if (usuarioId == null || token == null)
             {
                 return View("Error");
             }
@@ -91,7 +109,7 @@ namespace ByteBank.Forum.Controllers
             var linkDeCallback = Url.Action(
                 "ConfirmacaoEmail",
                 "Conta",
-                new { usuarioId = usuario.Id, token = token},
+                new { usuarioId = usuario.Id, token = token },
                 Request.Url.Scheme
                 );
 
@@ -110,9 +128,30 @@ namespace ByteBank.Forum.Controllers
         {
             if (ModelState.IsValid)
             {
+                var usuario = await UserManager.FindByEmailAsync(modelo.Email);
+                if (usuario == null)
+                {
+                    return SenhaOuUsuarioInvalidos();
+                }
+
+                var signInResultado = await SignInManager.PasswordSignInAsync(usuario.UserName, modelo.Senha, false, false);
+
+                switch (signInResultado)
+                {
+                    case SignInStatus.Success:
+                        return RedirectToAction("Index", "Home");
+                    default:
+                        return SenhaOuUsuarioInvalidos();
+                }
 
             }
             return View(modelo);
+        }
+
+        private ActionResult SenhaOuUsuarioInvalidos()
+        {
+            ModelState.AddModelError("", "Credenciais inválidas!");
+            return View("Login");
         }
 
         private void AdicionaErros(IEnumerable<string> errors)
